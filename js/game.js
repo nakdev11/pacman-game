@@ -90,8 +90,8 @@ class Game {
         window.addEventListener('keydown', (e) => this.handleKeyDown(e));
         window.addEventListener('keyup', (e) => this.handleKeyUp(e));
         
-        // 現在アクティブなボタンを追跡
-        this.activeButton = null;
+        // 現在の方向を追跡
+        this.currentDirection = { x: 0, y: 0 };
         
         // タッチコントロール
         const setupButton = (id, dx, dy) => {
@@ -104,20 +104,9 @@ class Game {
                 }
                 e.stopPropagation();
                 
-                // 既にこのボタンがアクティブの場合は何もしない
-                if (this.activeButton === btn) return;
-                
-                // 前のボタンを無効化
-                if (this.activeButton) {
-                    const endEvent = new Event('touchend');
-                    this.activeButton.dispatchEvent(endEvent);
-                }
-                
-                // 新しいボタンをアクティブに
-                this.activeButton = btn;
-                
                 // 方向を設定
-                this.pacman.setDirection(dx, dy);
+                this.currentDirection = { x: dx, y: dy };
+                this.pacman.setDirection(dx, dy, this.maze);
                 
                 // 即座に反映させるためにゲームループをトリガー
                 if (!this._animationFrameId) {
@@ -131,26 +120,18 @@ class Game {
                 }
                 e.stopPropagation();
                 
-                // このボタンがアクティブでない場合は何もしない
-                if (this.activeButton !== btn) return;
-                
                 // 現在の方向がこのボタンの方向と同じ場合のみ停止
-                if ((dx !== 0 && this.pacman.direction.x === dx) || 
-                    (dy !== 0 && this.pacman.direction.y === dy)) {
+                if ((dx !== 0 && this.currentDirection.x === dx) || 
+                    (dy !== 0 && this.currentDirection.y === dy)) {
+                    this.currentDirection = { x: 0, y: 0 };
                     this.pacman.direction = { x: 0, y: 0 };
                     this.pacman.nextDirection = { x: 0, y: 0 };
-                }
-                
-                // アクティブボタンをクリア
-                if (this.activeButton === btn) {
-                    this.activeButton = null;
                 }
             };
             
             // タッチイベント
             btn.addEventListener('touchstart', start, { passive: false });
             btn.addEventListener('touchend', end, { passive: false });
-            btn.addEventListener('touchcancel', end, { passive: false });
             
             // マウスイベント（タッチデバイスでも発火する場合があるため）
             btn.addEventListener('mousedown', start);

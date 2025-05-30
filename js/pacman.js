@@ -61,36 +61,32 @@ class Pacman {
     }
     
     // キー入力に応じて移動方向を設定
-    setDirection(dx, dy) {
+    setDirection(dx, dy, maze) {
         // 無効な方向は無視
         if ((dx === 0 && dy === 0) || (dx !== 0 && dy !== 0)) {
-            return;
-        }
-        
-        // 現在の移動方向と逆方向には移動できない
-        if ((this.direction.x !== 0 && dx === -this.direction.x) || 
-            (this.direction.y !== 0 && dy === -this.direction.y)) {
             return;
         }
         
         // 現在の位置を計算
         const currentGridX = Math.round((this.pixelX - this.gridSize / 2) / this.gridSize);
         const currentGridY = Math.round((this.pixelY - this.gridSize / 2) / this.gridSize);
+        
+        // グリッド中央に近いかどうかを判定（閾値を緩和）
+        const centerThreshold = 0.5;
         const isAtGridCenter = 
-            Math.abs(this.pixelX - (currentGridX * this.gridSize + this.gridSize / 2)) < 0.5 &&
-            Math.abs(this.pixelY - (currentGridY * this.gridSize + this.gridSize / 2)) < 0.5;
+            Math.abs(this.pixelX - (currentGridX * this.gridSize + this.gridSize / 2)) < centerThreshold &&
+            Math.abs(this.pixelY - (currentGridY * this.gridSize + this.gridSize / 2)) < centerThreshold;
         
         // 次の方向を設定
         this.nextDirection = { x: dx, y: dy };
         
         // 現在の位置がグリッド上にほぼある場合、または現在動いていない場合は即座に方向転換
         if (isAtGridCenter || (this.direction.x === 0 && this.direction.y === 0)) {
-            // 移動先が有効な場合のみ方向を変更
+            // 移動先が有効な場合は即座に方向転換
             const nextX = currentGridX + dx;
             const nextY = currentGridY + dy;
             
-            // 移動先が有効な場合のみ方向を変更
-            if (this.maze.isWalkable(nextX, nextY)) {
+            if (maze.isWalkable(nextX, nextY)) {
                 this.direction = { x: dx, y: dy };
                 this.x = currentGridX;
                 this.y = currentGridY;
@@ -100,8 +96,11 @@ class Pacman {
                 // 位置を正確にグリッドに合わせる
                 this.pixelX = this.x * this.gridSize + this.gridSize / 2;
                 this.pixelY = this.y * this.gridSize + this.gridSize / 2;
+                return true; // 方向転換が成功
             }
         }
+        
+        return false; // 方向転換が行われなかった
     }
     
     // パックマンの位置を更新
@@ -111,7 +110,7 @@ class Pacman {
         const currentGridY = Math.round((this.pixelY - this.gridSize / 2) / this.gridSize);
         
         // グリッドの中央に近づいたかどうかを判定（閾値を緩和）
-        const centerThreshold = 0.1; // 閾値を厳密に
+        const centerThreshold = 0.1;
         const isAtGridCenter = 
             Math.abs(this.pixelX - (currentGridX * this.gridSize + this.gridSize / 2)) < centerThreshold &&
             Math.abs(this.pixelY - (currentGridY * this.gridSize + this.gridSize / 2)) < centerThreshold;
@@ -128,7 +127,7 @@ class Pacman {
                 if (!maze.isWalkable(targetX, targetY)) {
                     // 壁にぶつかったら移動を止める
                     this.direction = { x: 0, y: 0 };
-                    this.nextDirection = { x: 0, y: 0 }; // 次の方向もリセット
+                    this.nextDirection = { x: 0, y: 0 };
                 } else {
                     // 現在の方向に進み続ける
                     this.targetX = targetX;
