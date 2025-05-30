@@ -128,16 +128,25 @@ class Pacman {
                     // 壁にぶつかったら移動を止める
                     this.direction = { x: 0, y: 0 };
                     this.nextDirection = { x: 0, y: 0 };
+                    
+                    // 次の方向があれば試みる
+                    if (this.nextDirection.x !== 0 || this.nextDirection.y !== 0) {
+                        const nextX = this.x + this.nextDirection.x;
+                        const nextY = this.y + this.nextDirection.y;
+                        
+                        if (maze.isWalkable(nextX, nextY)) {
+                            this.direction = { ...this.nextDirection };
+                            this.targetX = nextX;
+                            this.targetY = nextY;
+                        }
+                    }
                 } else {
                     // 現在の方向に進み続ける
                     this.targetX = targetX;
                     this.targetY = targetY;
                 }
-            }
-            
-            // 次の方向に移動可能な場合は方向を変更
-            if ((this.nextDirection.x !== 0 || this.nextDirection.y !== 0) && 
-                (this.direction.x === 0 || this.direction.y === 0)) {
+            } else if (this.nextDirection.x !== 0 || this.nextDirection.y !== 0) {
+                // 現在の方向がなく、次の方向がある場合は方向転換を試みる
                 const nextX = this.x + this.nextDirection.x;
                 const nextY = this.y + this.nextDirection.y;
                 

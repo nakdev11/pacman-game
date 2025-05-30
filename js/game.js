@@ -92,6 +92,7 @@ class Game {
         
         // 現在の方向を追跡
         this.currentDirection = { x: 0, y: 0 };
+        this.activeButtons = new Set();
         
         // タッチコントロール
         const setupButton = (id, dx, dy) => {
@@ -103,6 +104,9 @@ class Game {
                     e.preventDefault();
                 }
                 e.stopPropagation();
+                
+                // ボタンをアクティブに追加
+                this.activeButtons.add(id);
                 
                 // 方向を設定
                 this.currentDirection = { x: dx, y: dy };
@@ -120,12 +124,21 @@ class Game {
                 }
                 e.stopPropagation();
                 
-                // 現在の方向がこのボタンの方向と同じ場合のみ停止
-                if ((dx !== 0 && this.currentDirection.x === dx) || 
-                    (dy !== 0 && this.currentDirection.y === dy)) {
+                // ボタンを非アクティブに
+                this.activeButtons.delete(id);
+                
+                // このボタンが最後のアクティブなボタンの場合のみ停止
+                if (this.activeButtons.size === 0) {
                     this.currentDirection = { x: 0, y: 0 };
                     this.pacman.direction = { x: 0, y: 0 };
                     this.pacman.nextDirection = { x: 0, y: 0 };
+                } else {
+                    // 他のボタンがアクティブな場合は、その方向を設定
+                    const lastButtonId = Array.from(this.activeButtons).pop();
+                    const lastButton = document.getElementById(lastButtonId);
+                    if (lastButton) {
+                        lastButton.dispatchEvent(new Event('touchstart'));
+                    }
                 }
             };
             
