@@ -62,12 +62,30 @@ class Pacman {
     
     // キー入力に応じて移動方向を設定
     setDirection(dx, dy) {
+        // 無効な方向は無視
+        if ((dx === 0 && dy === 0) || (dx !== 0 && dy !== 0)) {
+            return;
+        }
+        
         // 現在の移動方向と逆方向には移動できない
         if ((this.direction.x !== 0 && dx === -this.direction.x) || 
             (this.direction.y !== 0 && dy === -this.direction.y)) {
             return;
         }
+        
+        // 即座に方向を更新
         this.nextDirection = { x: dx, y: dy };
+        
+        // 現在の位置がグリッド上であれば即座に方向転換
+        const currentGridX = Math.round((this.pixelX - this.gridSize / 2) / this.gridSize);
+        const currentGridY = Math.round((this.pixelY - this.gridSize / 2) / this.gridSize);
+        const isAtGridCenter = 
+            Math.abs(this.pixelX - (currentGridX * this.gridSize + this.gridSize / 2)) < 1 &&
+            Math.abs(this.pixelY - (currentGridY * this.gridSize + this.gridSize / 2)) < 1;
+            
+        if (isAtGridCenter) {
+            this.direction = { ...this.nextDirection };
+        }
     }
     
     // パックマンの位置を更新

@@ -95,40 +95,33 @@ class Game {
             const btn = document.getElementById(id);
             if (!btn) return;
             
-            const start = () => {
-                this.pacman.setDirection(dx, dy);
+            const start = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.pacman.nextDirection = { x: dx, y: dy };
+                this.pacman.direction = { x: dx, y: dy };
             };
             
-            const end = () => {
+            const end = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (this.pacman.nextDirection.x === dx && this.pacman.nextDirection.y === dy) {
+                    this.pacman.nextDirection = { x: 0, y: 0 };
+                }
                 if (this.pacman.direction.x === dx && this.pacman.direction.y === dy) {
                     this.pacman.direction = { x: 0, y: 0 };
                 }
             };
             
-            btn.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                start();
-            });
+            // タッチイベント
+            btn.addEventListener('touchstart', start, { passive: false });
+            btn.addEventListener('touchend', end, { passive: false });
+            btn.addEventListener('touchcancel', end, { passive: false });
             
-            btn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                end();
-            });
-            
-            btn.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                start();
-            });
-            
-            btn.addEventListener('mouseup', (e) => {
-                e.preventDefault();
-                end();
-            });
-            
-            btn.addEventListener('mouseleave', (e) => {
-                e.preventDefault();
-                end();
-            });
+            // マウスイベント（タッチデバイスでも発火する場合があるため）
+            btn.addEventListener('mousedown', start);
+            btn.addEventListener('mouseup', end);
+            btn.addEventListener('mouseleave', end);
         };
         
         // 各ボタンの設定

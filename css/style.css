@@ -21,6 +21,34 @@ body {
     margin: 0 auto;
 }
 
+.dpad button {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid #fff;
+    border-radius: 15px;
+    color: white;
+    font-size: 28px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.1s;
+    cursor: pointer;
+    user-select: none;
+}
+
+.dpad button:active {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(0.95);
+}
+
+/* タッチデバイス用のフィードバック */
+@media (hover: none) {
+    .dpad button:active {
+        background: rgba(255, 255, 255, 0.5);
+        transform: scale(0.95);
+    }
+}
+
 #gameCanvas {
     background-color: #000;
     border: 2px solid #333;
