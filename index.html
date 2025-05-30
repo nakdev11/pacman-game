@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>パックマン風ゲーム</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .touch-controls {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            justify-content: center;
+            gap: 20px;
+            padding: 0 20px;
+            z-index: 100;
+        }
+        .dpad {
+            display: grid;
+            grid-template-areas:
+                ". up ."
+                "left . right"
+                ". down .";
+            gap: 10px;
+        }
+        .dpad button {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid #fff;
+            border-radius: 10px;
+            color: white;
+            font-size: 24px;
+            touch-action: manipulation;
+        }
+        .dpad button:active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        #up { grid-area: up; }
+        #left { grid-area: left; }
+        #right { grid-area: right; }
+        #down { grid-area: down; }
+        @media (max-width: 768px) {
+            .touch-controls {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+        <div class="score">スコア: <span id="score">0</span></div>
+        
+        <!-- スマホ用タッチコントロール -->
+        <div class="touch-controls">
+            <div class="dpad">
+                <button id="up">↑</button>
+                <button id="left">←</button>
+                <button id="right">→</button>
+                <button id="down">↓</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/maze.js"></script>
+    <script src="js/dot.js"></script>
+    <script src="js/pacman.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
