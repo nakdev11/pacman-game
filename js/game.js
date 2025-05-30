@@ -96,20 +96,28 @@ class Game {
             if (!btn) return;
             
             const start = (e) => {
-                e.preventDefault();
+                if (e.cancelable) {
+                    e.preventDefault();
+                }
                 e.stopPropagation();
-                this.pacman.nextDirection = { x: dx, y: dy };
-                this.pacman.direction = { x: dx, y: dy };
+                // 方向を直接設定
+                this.pacman.setDirection(dx, dy);
+                // 即座に反映させるためにゲームループをトリガー
+                if (!this._animationFrameId) {
+                    this._animationFrameId = requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
+                }
             };
             
             const end = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (this.pacman.nextDirection.x === dx && this.pacman.nextDirection.y === dy) {
-                    this.pacman.nextDirection = { x: 0, y: 0 };
+                if (e.cancelable) {
+                    e.preventDefault();
                 }
-                if (this.pacman.direction.x === dx && this.pacman.direction.y === dy) {
+                e.stopPropagation();
+                // 現在の方向がこのボタンの方向と同じ場合のみ停止
+                if ((dx !== 0 && this.pacman.direction.x === dx) || 
+                    (dy !== 0 && this.pacman.direction.y === dy)) {
                     this.pacman.direction = { x: 0, y: 0 };
+                    this.pacman.nextDirection = { x: 0, y: 0 };
                 }
             };
             
@@ -140,19 +148,26 @@ class Game {
     
     // ゲームループ
     gameLoop(timestamp) {
-        // 前回のフレームからの経過時間を計算
-        const deltaTime = timestamp - (this.lastTime || 0);
+        // 前回のフレームからの経過時間を計算（ミリ秒を秒に変換）
+        const deltaTime = (timestamp - (this.lastTime || timestamp)) / 1000;
         this.lastTime = timestamp;
         
-        // ゲームの更新
-        this.update(deltaTime);
+        // フレームレートを制御（60FPSを目標）
+        const fps = 60;
+        const frameTime = 1 / fps;
         
-        // 描画
-        this.render();
+        // 前回の更新から十分な時間が経過していたら更新
+        if (deltaTime > 0) {
+            // ゲームの更新（経過時間を渡す）
+            this.update(Math.min(deltaTime, 0.1)); // 最大100msに制限
+            
+            // 描画（常にスムーズに）
+            this.render();
+        }
         
         // ゲームオーバーでなければ次のフレームをリクエスト
         if (!this.gameOver) {
-            requestAnimationFrame((ts) => this.gameLoop(ts));
+            this._animationFrameId = requestAnimationFrame((ts) => this.gameLoop(ts));
         }
     }
     

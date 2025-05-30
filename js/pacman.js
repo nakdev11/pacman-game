@@ -94,14 +94,26 @@ class Pacman {
         const currentGridX = Math.round((this.pixelX - this.gridSize / 2) / this.gridSize);
         const currentGridY = Math.round((this.pixelY - this.gridSize / 2) / this.gridSize);
         
-        // グリッドの中央に近づいたら方向転換を試みる
+        // グリッドの中央に近づいたかどうかを判定（閾値を緩和）
+        const centerThreshold = 0.8; // 閾値を緩和
         const isAtGridCenter = 
-            Math.abs(this.pixelX - (currentGridX * this.gridSize + this.gridSize / 2)) < 1 &&
-            Math.abs(this.pixelY - (currentGridY * this.gridSize + this.gridSize / 2)) < 1;
+            Math.abs(this.pixelX - (currentGridX * this.gridSize + this.gridSize / 2)) < centerThreshold &&
+            Math.abs(this.pixelY - (currentGridY * this.gridSize + this.gridSize / 2)) < centerThreshold;
         
         if (isAtGridCenter) {
             this.x = currentGridX;
             this.y = currentGridY;
+            
+            // 現在の方向に移動可能かチェック
+            if (this.direction.x !== 0 || this.direction.y !== 0) {
+                const targetX = this.x + this.direction.x;
+                const targetY = this.y + this.direction.y;
+                
+                if (!maze.isWalkable(targetX, targetY)) {
+                    // 壁にぶつかったら移動を止める
+                    this.direction = { x: 0, y: 0 };
+                }
+            }
             
             // 次の方向に移動可能な場合は方向を変更
             if (this.nextDirection.x !== 0 || this.nextDirection.y !== 0) {
@@ -113,18 +125,10 @@ class Pacman {
                 }
             }
             
-            // 現在の方向に移動可能かチェック
+            // 現在の方向に基づいて目標位置を設定
             if (this.direction.x !== 0 || this.direction.y !== 0) {
-                const targetX = this.x + this.direction.x;
-                const targetY = this.y + this.direction.y;
-                
-                if (maze.isWalkable(targetX, targetY)) {
-                    this.targetX = targetX;
-                    this.targetY = targetY;
-                } else {
-                    // 壁にぶつかったら移動を止める
-                    this.direction = { x: 0, y: 0 };
-                }
+                this.targetX = this.x + this.direction.x;
+                this.targetY = this.y + this.direction.y;
             }
         }
         
