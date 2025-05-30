@@ -90,6 +90,9 @@ class Game {
         window.addEventListener('keydown', (e) => this.handleKeyDown(e));
         window.addEventListener('keyup', (e) => this.handleKeyUp(e));
         
+        // 現在アクティブなボタンを追跡
+        this.activeButton = null;
+        
         // タッチコントロール
         const setupButton = (id, dx, dy) => {
             const btn = document.getElementById(id);
@@ -100,8 +103,22 @@ class Game {
                     e.preventDefault();
                 }
                 e.stopPropagation();
-                // 方向を直接設定
+                
+                // 既にこのボタンがアクティブの場合は何もしない
+                if (this.activeButton === btn) return;
+                
+                // 前のボタンを無効化
+                if (this.activeButton) {
+                    const endEvent = new Event('touchend');
+                    this.activeButton.dispatchEvent(endEvent);
+                }
+                
+                // 新しいボタンをアクティブに
+                this.activeButton = btn;
+                
+                // 方向を設定
                 this.pacman.setDirection(dx, dy);
+                
                 // 即座に反映させるためにゲームループをトリガー
                 if (!this._animationFrameId) {
                     this._animationFrameId = requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
@@ -113,11 +130,20 @@ class Game {
                     e.preventDefault();
                 }
                 e.stopPropagation();
+                
+                // このボタンがアクティブでない場合は何もしない
+                if (this.activeButton !== btn) return;
+                
                 // 現在の方向がこのボタンの方向と同じ場合のみ停止
                 if ((dx !== 0 && this.pacman.direction.x === dx) || 
                     (dy !== 0 && this.pacman.direction.y === dy)) {
                     this.pacman.direction = { x: 0, y: 0 };
                     this.pacman.nextDirection = { x: 0, y: 0 };
+                }
+                
+                // アクティブボタンをクリア
+                if (this.activeButton === btn) {
+                    this.activeButton = null;
                 }
             };
             
