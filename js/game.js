@@ -139,15 +139,17 @@ class Game {
                 // ボタンを非アクティブに
                 this.activeButtons.delete(id);
                 
-                // このボタンが最後のアクティブなボタンの場合でも、方向はリセットしない
                 // 他のボタンがアクティブな場合は、その方向を設定
                 if (this.activeButtons.size > 0) {
                     const lastButtonId = Array.from(this.activeButtons).pop();
                     const lastButton = document.getElementById(lastButtonId);
                     if (lastButton) {
+                        // 現在の方向をリセットしてから新しい方向を設定
+                        this.currentDirection = { x: 0, y: 0 };
                         lastButton.dispatchEvent(new Event('touchstart'));
                     }
                 }
+                // アクティブなボタンがなくなっても方向はリセットしない
             };
             
             // タッチイベント
