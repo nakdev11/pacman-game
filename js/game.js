@@ -111,6 +111,10 @@ class Game {
             const btn = document.getElementById(id);
             if (!btn) return;
             
+            // ボタンに方向情報を保存
+            btn.dataset.dx = dx;
+            btn.dataset.dy = dy;
+            
             const start = (e) => {
                 if (e.cancelable) {
                     e.preventDefault();
@@ -139,14 +143,16 @@ class Game {
                 // ボタンを非アクティブに
                 this.activeButtons.delete(id);
                 
-                // 他のボタンがアクティブな場合は、その方向を設定
+                // 他のボタンがアクティブな場合は、その方向に切り替え
                 if (this.activeButtons.size > 0) {
                     const lastButtonId = Array.from(this.activeButtons).pop();
                     const lastButton = document.getElementById(lastButtonId);
                     if (lastButton) {
-                        // 現在の方向をリセットしてから新しい方向を設定
-                        this.currentDirection = { x: 0, y: 0 };
-                        lastButton.dispatchEvent(new Event('touchstart'));
+                        // 新しい方向を設定
+                        const dx = lastButton.dataset.dx ? parseInt(lastButton.dataset.dx) : 0;
+                        const dy = lastButton.dataset.dy ? parseInt(lastButton.dataset.dy) : 0;
+                        this.currentDirection = { x: dx, y: dy };
+                        this.pacman.setDirection(dx, dy, this.maze);
                     }
                 }
                 // アクティブなボタンがなくなっても方向はリセットしない
