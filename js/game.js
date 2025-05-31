@@ -14,6 +14,7 @@ class Game {
         this.dots = [];
         this.score = 0;
         this.gameOver = false;
+        this.lastDirection = { x: 0, y: 0 }; // 最後の方向を保持
         
         // ゲームの初期化
         this.init();
@@ -92,13 +93,14 @@ class Game {
 
     // キーボード入力とタッチコントロールの設定
     setupEventListeners() {
-        // キーボード入力
+        // キーボードイベント
         window.addEventListener('keydown', (e) => this.handleKeyDown(e));
         window.addEventListener('keyup', (e) => this.handleKeyUp(e));
         
         // 現在の方向を追跡
         this.currentDirection = { x: 0, y: 0 };
         this.activeButtons = new Set();
+        this.lastTouchDirection = null; // 最後のタッチ方向を保持
         
         // タッチコントロール
         /**
@@ -126,6 +128,7 @@ class Game {
                 
                 // 方向を設定
                 this.currentDirection = { x: dx, y: dy };
+                this.lastTouchDirection = { x: dx, y: dy }; // 最後の方向を保存
                 this.pacman.setDirection(dx, dy, this.maze);
                 
                 // 即座に反映させるためにゲームループをトリガー
@@ -152,10 +155,17 @@ class Game {
                         const dx = lastButton.dataset.dx ? parseInt(lastButton.dataset.dx) : 0;
                         const dy = lastButton.dataset.dy ? parseInt(lastButton.dataset.dy) : 0;
                         this.currentDirection = { x: dx, y: dy };
+                        this.lastTouchDirection = { x: dx, y: dy }; // 最後の方向を更新
                         this.pacman.setDirection(dx, dy, this.maze);
                     }
+                } else if (this.lastTouchDirection) {
+                    // アクティブなボタンがなくなっても、最後の方向を維持
+                    this.pacman.setDirection(
+                        this.lastTouchDirection.x, 
+                        this.lastTouchDirection.y, 
+                        this.maze
+                    );
                 }
-                // アクティブなボタンがなくなっても方向はリセットしない
             };
             
             // タッチイベント
