@@ -139,13 +139,9 @@ class Game {
                 // ボタンを非アクティブに
                 this.activeButtons.delete(id);
                 
-                // このボタンが最後のアクティブなボタンの場合のみ停止
-                if (this.activeButtons.size === 0) {
-                    this.currentDirection = { x: 0, y: 0 };
-                    this.pacman.direction = { x: 0, y: 0 };
-                    this.pacman.nextDirection = { x: 0, y: 0 };
-                } else {
-                    // 他のボタンがアクティブな場合は、その方向を設定
+                // このボタンが最後のアクティブなボタンの場合でも、方向はリセットしない
+                // 他のボタンがアクティブな場合は、その方向を設定
+                if (this.activeButtons.size > 0) {
                     const lastButtonId = Array.from(this.activeButtons).pop();
                     const lastButton = document.getElementById(lastButtonId);
                     if (lastButton) {
