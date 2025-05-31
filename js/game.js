@@ -60,18 +60,19 @@ class Game {
     
     // キーボード入力のハンドラ
     handleKeyDown(e) {
+        // 現在押されているキーに応じて方向を設定
         switch (e.key) {
             case 'ArrowUp':
-                this.pacman.setDirection(0, -1);
+                this.pacman.setDirection(0, -1, this.maze);
                 break;
             case 'ArrowDown':
-                this.pacman.setDirection(0, 1);
+                this.pacman.setDirection(0, 1, this.maze);
                 break;
             case 'ArrowLeft':
-                this.pacman.setDirection(-1, 0);
+                this.pacman.setDirection(-1, 0, this.maze);
                 break;
             case 'ArrowRight':
-                this.pacman.setDirection(1, 0);
+                this.pacman.setDirection(1, 0, this.maze);
                 break;
             case 'r':
             case 'R':
@@ -80,8 +81,13 @@ class Game {
         }
     }
 
-    handleKeyUp() {
-        // キーを離したときの処理（必要に応じて実装）
+    handleKeyUp(e) {
+        // キーを離しても移動を継続するため、キーを離したときの処理は行わない
+        // ただし、Rキーは例外として処理
+        if (e.key.toLowerCase() === 'r') {
+            return;
+        }
+        // キーを離しても方向転換は行わない
     }
 
     // キーボード入力とタッチコントロールの設定
@@ -95,6 +101,12 @@ class Game {
         this.activeButtons = new Set();
         
         // タッチコントロール
+        /**
+         * 指定されたIDを持つボタンをタッチコントロールとして設定
+         * @param {string} id - ボタンのID
+         * @param {number} dx - 方向のx成分
+         * @param {number} dy - 方向のy成分
+         */
         const setupButton = (id, dx, dy) => {
             const btn = document.getElementById(id);
             if (!btn) return;

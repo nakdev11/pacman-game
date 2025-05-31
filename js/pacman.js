@@ -64,7 +64,7 @@ class Pacman {
     setDirection(dx, dy, maze) {
         // 無効な方向は無視
         if ((dx === 0 && dy === 0) || (dx !== 0 && dy !== 0)) {
-            return;
+            return false;
         }
         
         // 現在の位置を計算
@@ -80,13 +80,14 @@ class Pacman {
         // 次の方向を設定
         this.nextDirection = { x: dx, y: dy };
         
-        // 現在の位置がグリッド上にほぼある場合、または現在動いていない場合は即座に方向転換
-        if (isAtGridCenter || (this.direction.x === 0 && this.direction.y === 0)) {
-            // 移動先が有効な場合は即座に方向転換
-            const nextX = currentGridX + dx;
-            const nextY = currentGridY + dy;
-            
-            if (maze.isWalkable(nextX, nextY)) {
+        // 移動先が有効かどうかをチェック
+        const nextX = currentGridX + dx;
+        const nextY = currentGridY + dy;
+        
+        // 移動先が有効な場合
+        if (maze.isWalkable(nextX, nextY)) {
+            // 現在の位置がグリッド上にほぼある場合、または現在動いていない場合は即座に方向転換
+            if (isAtGridCenter || (this.direction.x === 0 && this.direction.y === 0)) {
                 this.direction = { x: dx, y: dy };
                 this.x = currentGridX;
                 this.y = currentGridY;
@@ -98,9 +99,10 @@ class Pacman {
                 this.pixelY = this.y * this.gridSize + this.gridSize / 2;
                 return true; // 方向転換が成功
             }
+            return true; // 方向転換はまだ行われないが、移動先は有効
         }
         
-        return false; // 方向転換が行われなかった
+        return false; // 移動先が無効
     }
     
     // パックマンの位置を更新
@@ -119,34 +121,8 @@ class Pacman {
             this.x = currentGridX;
             this.y = currentGridY;
             
-            // 現在の方向に移動可能かチェック
-            if (this.direction.x !== 0 || this.direction.y !== 0) {
-                const targetX = this.x + this.direction.x;
-                const targetY = this.y + this.direction.y;
-                
-                if (!maze.isWalkable(targetX, targetY)) {
-                    // 壁にぶつかったら移動を止める
-                    this.direction = { x: 0, y: 0 };
-                    this.nextDirection = { x: 0, y: 0 };
-                    
-                    // 次の方向があれば試みる
-                    if (this.nextDirection.x !== 0 || this.nextDirection.y !== 0) {
-                        const nextX = this.x + this.nextDirection.x;
-                        const nextY = this.y + this.nextDirection.y;
-                        
-                        if (maze.isWalkable(nextX, nextY)) {
-                            this.direction = { ...this.nextDirection };
-                            this.targetX = nextX;
-                            this.targetY = nextY;
-                        }
-                    }
-                } else {
-                    // 現在の方向に進み続ける
-                    this.targetX = targetX;
-                    this.targetY = targetY;
-                }
-            } else if (this.nextDirection.x !== 0 || this.nextDirection.y !== 0) {
-                // 現在の方向がなく、次の方向がある場合は方向転換を試みる
+            // 次の方向がある場合は、その方向に進めるかチェック
+            if (this.nextDirection.x !== 0 || this.nextDirection.y !== 0) {
                 const nextX = this.x + this.nextDirection.x;
                 const nextY = this.y + this.nextDirection.y;
                 
@@ -156,10 +132,26 @@ class Pacman {
                     this.targetY = nextY;
                 }
             }
+            
+            // 現在の方向に移動可能かチェック
+            if (this.direction.x !== 0 || this.direction.y !== 0) {
+                const targetX = this.x + this.direction.x;
+                const targetY = this.y + this.direction.y;
+                
+                if (maze.isWalkable(targetX, targetY)) {
+                    // 現在の方向に進み続ける
+                    this.targetX = targetX;
+                    this.targetY = targetY;
+                } else {
+                    // 壁にぶつかったら移動を止める
+                    this.direction = { x: 0, y: 0 };
+                }
+            }
         }
         
         // 目標に向かって移動
         if (this.direction.x !== 0 || this.direction.y !== 0) {
+            
             const targetPixelX = this.targetX * this.gridSize + this.gridSize / 2;
             const targetPixelY = this.targetY * this.gridSize + this.gridSize / 2;
             
