@@ -4,7 +4,7 @@ class Pacman {
         this.y = y;  // グリッドY座標
         this.gridSize = gridSize;
         this.radius = gridSize / 2 - 2;
-        this.speed = 0.3;  // 移動速度（ピクセル/フレーム）
+        this.speed = 0.15;  // 移動速度（ピクセル/フレーム）を0.15に変更
         this.pixelX = x * gridSize + gridSize / 2;  // ピクセル単位のX座標
         this.pixelY = y * gridSize + gridSize / 2;  // ピクセル単位のY座標
         this.targetX = x;  // 目標のグリッドX座標
