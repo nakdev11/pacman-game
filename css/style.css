@@ -22,13 +22,13 @@ body {
 }
 
 .dpad button {
-    width: 60px;
-    height: 60px;
+    width: 45px;
+    height: 45px;
     background: rgba(255, 255, 255, 0.2);
     border: 2px solid #fff;
-    border-radius: 15px;
+    border-radius: 12px;
     color: white;
-    font-size: 28px;
+    font-size: 22px;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     transition: background-color 0.1s;
@@ -59,6 +59,33 @@ body {
     margin: 0 auto;
 }
 
+/* タッチコントロールのスタイル */
+.touch-controls {
+    display: none;
+    position: fixed;
+    bottom: 50px;
+    left: 0;
+    right: 0;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 20px;
+    z-index: 100;
+}
+
+.dpad {
+    display: grid;
+    grid-template-areas:
+        ". up ."
+        "left . right"
+        ". down .";
+    gap: 8px;
+}
+
+#up { grid-area: up; }
+#left { grid-area: left; }
+#right { grid-area: right; }
+#down { grid-area: down; }
+
 /* スマホ用のスタイル */
 @media (max-width: 768px) {
     body {
@@ -69,17 +96,24 @@ body {
     
     .game-container {
         width: 100%;
-        padding-bottom: 120px; /* タッチコントロールのためのスペース */
+        padding-bottom: 160px; /* タッチコントロールのためのスペース（ボタンサイズ縮小に合わせて調整） */
+        padding-top: 10px;
     }
     
     #gameCanvas {
         width: 100%;
-        max-height: 70vh;
+        max-height: 58vh; /* タッチコントロールとの重複を避けるため高さを微調整 */
     }
     
     .score {
         font-size: 20px;
-        margin: 10px 0;
+        margin: 10px 0 20px 0; /* 下マージンを増やしてキャンバスとの間隔を確保 */
+        position: relative;
+        z-index: 10;
+    }
+    
+    .touch-controls {
+        display: flex;
     }
 }
 
